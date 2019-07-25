@@ -1,0 +1,9 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+dependencies {
+    implementation "io.reactivex.rxjava2:rxjava:2.2.3"
+
+    testImplementation project(':testhelper')
+}
