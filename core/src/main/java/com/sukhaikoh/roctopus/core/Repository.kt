@@ -66,9 +66,9 @@ class Repository<T> private constructor(
 
     fun save(
         block: (Result<T>) -> Unit,
-        options: (ExecutionOption<T>) -> Unit
+        configure: (Options<T>) -> Unit
     ): Repository<T> {
-        return apply(options) { upstreamStreamObject ->
+        return apply(configure) { upstreamStreamObject ->
             Flowable.just(block(upstreamStreamObject.result))
                 .map {
                     upstreamStreamObject.copy(
@@ -82,9 +82,9 @@ class Repository<T> private constructor(
 
     fun load(
         block: (Result<T>) -> Flowable<T>,
-        options: (ExecutionOption<T>) -> Unit
+        configure: (Options<T>) -> Unit
     ): Repository<T> {
-        return apply(options) { upstreamStreamObject ->
+        return apply(configure) { upstreamStreamObject ->
             block(upstreamStreamObject.result)
                 .map { StreamObject(Result.success(it)) }
         }
@@ -92,23 +92,26 @@ class Repository<T> private constructor(
 
     @Suppress("RemoveExplicitTypeArguments")
     private fun apply(
-        options: (ExecutionOption<T>) -> Unit,
+        configure: (Options<T>) -> Unit,
         block: (StreamObject<T>) -> Flowable<StreamObject<T>>
     ): Repository<T> {
+
+        val options = Options<T>()
+
         stream = stream
             .flatMap { upstreamStreamObject ->
                 if (!upstreamStreamObject.shouldSkipDownstream) {
-                    val option = ExecutionOption(upstreamStreamObject.result)
-                    options(option)
+                    options.upstreamResult = upstreamStreamObject.result
+                    configure(options)
 
-                    if (!option.skip) {
+                    if (!options.skip) {
                         var flowable = try {
                             block(upstreamStreamObject)
                         } catch (t: Throwable) {
                             Flowable.error<StreamObject<T>>(t)
                         }.onErrorResumeNext { t: Throwable ->
                             Flowable.just(
-                                option.onErrorReturn(
+                                options.onErrorReturn(
                                     t,
                                     upstreamStreamObject.result
                                 ).toStreamObject()
@@ -117,13 +120,13 @@ class Repository<T> private constructor(
                             it.onNext(StreamObject(Result.success()))
                         }.doOnNext {
                             if (it.result.isSuccess) {
-                                option.onSuccess?.invoke(it.result)
+                                options.onSuccess?.invoke(it.result)
                             } else if (it.result.isFailure) {
-                                option.onError?.invoke(it.result.cause!!)
+                                options.onError?.invoke(it.result.cause!!)
                             }
                         }
 
-                        if (option.startWithUpstreamResult) {
+                        if (options.startWithUpstreamResult) {
                             flowable = flowable.startWith(
                                 upstreamStreamObject.copy(
                                     result = upstreamStreamObject.result.toLoading(),

@@ -1,40 +1,37 @@
 package com.sukhaikoh.roctopus.core
 
-data class ExecutionOption<T> internal constructor(
-    val upstreamResult: Result<T>
+data class Options<T> internal constructor(
+    internal var startWithUpstreamResult: Boolean = false
 ) {
+    var upstreamResult: Result<T> = Result.loading()
+        internal set
     internal var onSuccess: OnSuccess<T>? = null
     internal var onError: OnError? = null
     internal val skip: Boolean
         get() = !filterPredicate.invoke(upstreamResult)
-    internal val startWithUpstreamResult: Boolean
-        get() = startWithUpstreamResultPredicate.invoke(upstreamResult)
-    internal var onErrorReturn: OnErrorReturn<T> =
-        this::defaultOnErrorReturnHandling
-    private var filterPredicate: Predicate<T> =
-        this::defaultFilterHandling
-    private var startWithUpstreamResultPredicate: Predicate<T> = { false }
+    internal var onErrorReturn: OnErrorReturn<T> = this::defaultOnErrorReturnHandling
+    private var filterPredicate: Predicate<T> = this::defaultFilterHandling
 
-    fun filter(predicate: Predicate<T>): ExecutionOption<T> {
+    fun filter(predicate: Predicate<T>): Options<T> {
         filterPredicate = predicate
         return this
     }
 
-    fun startWithUpstreamResult(): ExecutionOption<T> {
+    fun startWithUpstreamResult(): Options<T> {
         return startWithUpstreamResult { true }
     }
 
-    fun startWithUpstreamResult(predicate: Predicate<T>): ExecutionOption<T> {
-        startWithUpstreamResultPredicate = predicate
+    fun startWithUpstreamResult(predicate: Predicate<T>): Options<T> {
+        startWithUpstreamResult = predicate.invoke(upstreamResult)
         return this
     }
 
-    fun onSuccess(handler: OnSuccess<T>): ExecutionOption<T> {
+    fun onSuccess(handler: OnSuccess<T>): Options<T> {
         this.onSuccess = handler
         return this
     }
 
-    fun onError(handler: OnError): ExecutionOption<T> {
+    fun onError(handler: OnError): Options<T> {
         this.onError = handler
         return this
     }
@@ -42,15 +39,19 @@ data class ExecutionOption<T> internal constructor(
     fun onComplete(
         onSuccess: OnSuccess<T> = {},
         onError: OnError = {}
-    ): ExecutionOption<T> {
+    ): Options<T> {
         this.onSuccess = onSuccess
         this.onError = onError
         return this
     }
 
-    fun onErrorReturn(block: OnErrorReturn<T>): ExecutionOption<T> {
+    fun onErrorReturn(block: OnErrorReturn<T>): Options<T> {
         this.onErrorReturn = block
         return this
+    }
+
+    internal fun dispose() {
+
     }
 
     private fun defaultOnErrorReturnHandling(

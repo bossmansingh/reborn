@@ -131,7 +131,7 @@ class RepositoryTest {
             .load { Flowable.just(data) }
             .save(
                 block = { called = true },
-                options = {
+                configure = {
                     it.filter { upstreamResult ->
                         upstreamResult.data.equals(data)
                     }
@@ -155,7 +155,7 @@ class RepositoryTest {
             .load { throw throwable }
             .save(
                 block = { called = true },
-                options = {
+                configure = {
                     it.filter { upstreamResult ->
                         upstreamResult.isFailure
                     }.onErrorReturn { _, _ ->
@@ -182,7 +182,7 @@ class RepositoryTest {
             .load { throw throwable }
             .save(
                 block = { called = true },
-                options = {
+                configure = {
                     it.filter { upstreamResult ->
                         upstreamResult.isSuccess
                     }.onErrorReturn { _, _ ->
@@ -211,7 +211,7 @@ class RepositoryTest {
             }
             .save(
                 block = { positionOrder(1) },
-                options = { it.startWithUpstreamResult() }
+                configure = { it.startWithUpstreamResult() }
             )
             .load {
                 positionOrder(2)
@@ -236,7 +236,7 @@ class RepositoryTest {
             .load { Flowable.just(data) }
             .save(
                 block = { called = true },
-                options = { it.filter { true } }
+                configure = { it.filter { true } }
             )
             .execute()
             .test()
@@ -255,7 +255,7 @@ class RepositoryTest {
             .load { Flowable.just(data) }
             .save(
                 block = { called = true },
-                options = { it.filter { false } }
+                configure = { it.filter { false } }
             )
             .execute()
             .test()
@@ -306,7 +306,7 @@ class RepositoryTest {
         prepare<String>()
             .save(
                 block = { throw throwable },
-                options = { option ->
+                configure = { option ->
                     option.onErrorReturn { t, result ->
                         assertEquals(throwable, t)
 
@@ -327,6 +327,59 @@ class RepositoryTest {
                 Result.loading(),
                 Result.success(data)
             )
+    }
+
+    @Test
+    fun `save when block throw Exception then call onComplete error block`() {
+        val throwable = Throwable()
+        var called = false
+
+        prepare<String>()
+            .save(
+                { throw throwable },
+                { options ->
+                    options.onComplete({
+                        fail("onSuccess should not be called when an error occurred.")
+                    }, {
+                        called = true
+                        assertEquals(throwable, it)
+                    })
+                }
+            )
+            .execute()
+            .test()
+            .assertValues(
+                Result.loading(),
+                Result.error(throwable)
+            )
+
+        assertTrue(called)
+    }
+
+    @Test
+    fun `save when block is success then call onComplete success block`() {
+        var called = false
+
+        prepare<String>()
+            .save(
+                { },
+                {
+                    it.onComplete({ result ->
+                        called = true
+                        assertEquals(Result.success<String>(), result)
+                    }, {
+                        fail("onError should not be called when success.")
+                    })
+                }
+            )
+            .execute()
+            .test()
+            .assertValues(
+                Result.loading(),
+                Result.success()
+            )
+
+        assertTrue(called)
     }
 
     @Test
@@ -438,7 +491,7 @@ class RepositoryTest {
             .load { Flowable.just(data1) }
             .load(
                 block = { Flowable.just(data2) },
-                options = {
+                configure = {
                     it.filter { upstreamResult ->
                         upstreamResult.data.equals(data1)
                     }
@@ -462,7 +515,7 @@ class RepositoryTest {
             .load { throw throwable }
             .load(
                 block = { Flowable.just(data2) },
-                options = {
+                configure = {
                     it.filter { upstreamResult ->
                         upstreamResult.isFailure
                     }.onErrorReturn { _, _ ->
@@ -489,7 +542,7 @@ class RepositoryTest {
             .load { throw throwable }
             .save(
                 block = { Flowable.just(data2) },
-                options = {
+                configure = {
                     it.filter { upstreamResult ->
                         upstreamResult.isSuccess
                     }.onErrorReturn { _, _ ->
@@ -521,7 +574,7 @@ class RepositoryTest {
                     positionOrder(1)
                     Flowable.just(data2)
                 },
-                options = { it.startWithUpstreamResult() }
+                configure = { it.startWithUpstreamResult() }
             )
             .load {
                 positionOrder(2)
@@ -592,7 +645,7 @@ class RepositoryTest {
         prepare<String>()
             .load(
                 block = { throw throwable },
-                options = {
+                configure = {
                     it.onErrorReturn { t, result ->
                         assertEquals(throwable, t)
 
@@ -628,6 +681,59 @@ class RepositoryTest {
                     }.onSuccess {
                         fail("onSuccess should not be called when an error occurred.")
                     }
+                }
+            )
+            .execute()
+            .test()
+            .assertValues(
+                Result.loading(),
+                Result.error(throwable)
+            )
+
+        assertTrue(called)
+    }
+
+    @Test
+    fun `load when block is success then call onComplete success block`() {
+        var called = false
+
+        prepare<String>()
+            .load(
+                { Flowable.just(data) },
+                {
+                    it.onComplete({ result ->
+                        called = true
+                        assertEquals(Result.success(data), result)
+                    }, {
+                        fail("onError should not be called when success.")
+                    })
+                }
+            )
+            .execute()
+            .test()
+            .assertValues(
+                Result.loading(),
+                Result.success(data)
+            )
+
+        assertTrue(called)
+    }
+
+    @Test
+    fun `load when block throw Exception then call onComplete error block`() {
+        val throwable = Throwable()
+        var called = false
+
+        prepare<String>()
+            .load(
+                { throw throwable },
+                { options ->
+                    options.onComplete({
+                        fail("onSuccess should not be called when an error occurred.")
+                    }, {
+                        called = true
+                        assertEquals(throwable, it)
+                    })
                 }
             )
             .execute()
@@ -757,6 +863,27 @@ class RepositoryTest {
 
         assertTrue(repository.hasSetSubscribeScheduler)
     }
+
+//    @Test
+//    fun `try something`() {
+//        var called1 = false
+//        var called2 = false
+//
+//        val flowable = prepare<String>()
+//            .something("my data", { called1 = true }, { called2 = true })
+//
+//        assertFalse(called1)
+//        assertFalse(called2)
+//
+//        val disposable = flowable.subscribe()
+//
+//        assertFalse(called1)
+//        assertFalse(called2)
+//
+//        disposable.dispose()
+//        assertTrue(called1)
+//        assertTrue(called2)
+//    }
 
     private fun positionOrder(position: Int) {
         callOrder.add(position)
