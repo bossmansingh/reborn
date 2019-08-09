@@ -1,5 +1,7 @@
 package com.sukhaikoh.roctopus.core
 
+import com.sukhaikoh.roctopus.core.rate.Rate
+
 data class Options<T> internal constructor(
     internal var startWithUpstreamResult: Boolean = false
 ) {
@@ -7,13 +9,28 @@ data class Options<T> internal constructor(
         internal set
     internal var onSuccess: OnSuccess<T>? = null
     internal var onError: OnError? = null
+    internal var rate: Rate? = null
     internal val skip: Boolean
         get() = !filterPredicate.invoke(upstreamResult)
+    internal var ignore: Boolean = false
+        private set
     internal var onErrorReturn: OnErrorReturn<T> = this::defaultOnErrorReturnHandling
     private var filterPredicate: Predicate<T> = this::defaultFilterHandling
 
     fun filter(predicate: Predicate<T>): Options<T> {
         filterPredicate = predicate
+        return this
+    }
+
+    fun rate(rate: Rate): Options<T> {
+        if (this.rate == null) {
+            this.rate = rate
+        }
+        return this
+    }
+
+    fun ignoreResult(predicate: Predicate<T> = { true }): Options<T> {
+        ignore = predicate.invoke(upstreamResult)
         return this
     }
 
@@ -48,10 +65,6 @@ data class Options<T> internal constructor(
     fun onErrorReturn(block: OnErrorReturn<T>): Options<T> {
         this.onErrorReturn = block
         return this
-    }
-
-    internal fun dispose() {
-
     }
 
     private fun defaultOnErrorReturnHandling(

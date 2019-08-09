@@ -105,37 +105,41 @@ class Repository<T> private constructor(
                     configure(options)
 
                     if (!options.skip) {
-                        var flowable = try {
-                            block(upstreamStreamObject)
-                        } catch (t: Throwable) {
-                            Flowable.error<StreamObject<T>>(t)
-                        }.onErrorResumeNext { t: Throwable ->
-                            Flowable.just(
-                                options.onErrorReturn(
-                                    t,
-                                    upstreamStreamObject.result
-                                ).toStreamObject()
-                            )
-                        }.switchIfEmpty {
-                            it.onNext(StreamObject(Result.success()))
-                        }.doOnNext {
-                            if (it.result.isSuccess) {
-                                options.onSuccess?.invoke(it.result)
-                            } else if (it.result.isFailure) {
-                                options.onError?.invoke(it.result.cause!!)
-                            }
-                        }
+                        val shouldProcess = options.rate?.shouldProcess() ?: true
 
-                        if (options.startWithUpstreamResult) {
-                            flowable = flowable.startWith(
-                                upstreamStreamObject.copy(
-                                    result = upstreamStreamObject.result.toLoading(),
-                                    shouldSkipDownstream = true
+                        if (shouldProcess) {
+                            var flowable = try {
+                                block(upstreamStreamObject)
+                            } catch (t: Throwable) {
+                                Flowable.error<StreamObject<T>>(t)
+                            }.onErrorResumeNext { t: Throwable ->
+                                Flowable.just(
+                                    options.onErrorReturn(
+                                        t,
+                                        upstreamStreamObject.result
+                                    ).toStreamObject()
                                 )
-                            )
-                        }
+                            }.switchIfEmpty {
+                                it.onNext(StreamObject(Result.success()))
+                            }.doOnNext {
+                                if (it.result.isSuccess) {
+                                    options.onSuccess?.invoke(it.result)
+                                } else if (it.result.isFailure) {
+                                    options.onError?.invoke(it.result.cause!!)
+                                }
+                            }.filter { !options.ignore }
 
-                        return@flatMap flowable
+                            if (options.startWithUpstreamResult) {
+                                flowable = flowable.startWith(
+                                    upstreamStreamObject.copy(
+                                        result = upstreamStreamObject.result.toLoading(),
+                                        shouldSkipDownstream = true
+                                    )
+                                )
+                            }
+
+                            return@flatMap flowable
+                        }
                     }
                 }
 

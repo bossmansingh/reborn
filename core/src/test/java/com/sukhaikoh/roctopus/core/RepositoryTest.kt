@@ -7,6 +7,7 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.sukhaikoh.roctopus.core.Repository.Companion.prepare
+import com.sukhaikoh.roctopus.core.rate.Rate.Companion.once
 import com.sukhaikoh.roctopus.testhelper.SchedulersTestExtension
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -815,6 +816,52 @@ class RepositoryTest {
     }
 
     @Test
+    fun `simulate dao has inner rx publisher`() {
+        val data1 = "data 1"
+        val data2 = "data 2"
+        val data3 = "data 3"
+        val id = "my id"
+        val dao: Dao = mock()
+        val api: Api = mock()
+
+        whenever(dao.load(id))
+            .thenReturn(Flowable.just(
+                data1,
+                // Simulate the inner publisher publish again after dao.update is called
+                data3)
+            )
+
+        whenever(api.getData(id))
+            .thenReturn(Flowable.just(data2))
+
+        prepare<String>()
+            .load { dao.load(id) }
+            .load(
+                { api.getData(id) },
+                { option ->
+                    option.startWithUpstreamResult()
+                        .rate(once())
+                        .ignoreResult()
+                        .onSuccess { result ->
+                            result.onSuccess {
+                                if (data != null) {
+                                    dao.update(id, data!!)
+                                }
+                            }
+                        }
+                })
+            .execute()
+            .test()
+            .assertValues(
+                Result.loading(),
+                Result.loading(data1),
+                Result.success(data3)
+            )
+
+        verify(dao, times(1)).update(id, data2)
+    }
+
+    @Test
     fun `simulate insert data with dao as primary source and network as secondary source`() {
         val id = "my id"
         val dao: Dao = mock()
@@ -864,27 +911,6 @@ class RepositoryTest {
         assertTrue(repository.hasSetSubscribeScheduler)
     }
 
-//    @Test
-//    fun `try something`() {
-//        var called1 = false
-//        var called2 = false
-//
-//        val flowable = prepare<String>()
-//            .something("my data", { called1 = true }, { called2 = true })
-//
-//        assertFalse(called1)
-//        assertFalse(called2)
-//
-//        val disposable = flowable.subscribe()
-//
-//        assertFalse(called1)
-//        assertFalse(called2)
-//
-//        disposable.dispose()
-//        assertTrue(called1)
-//        assertTrue(called2)
-//    }
-
     private fun positionOrder(position: Int) {
         callOrder.add(position)
         numberOfCalls++
@@ -912,5 +938,4 @@ interface Dao {
 interface Api {
     fun addData(key: String, data: String): Completable
     fun getData(key: String): Flowable<String>
-    fun getData2(key: String): Flowable<List<String>>
 }
