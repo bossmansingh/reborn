@@ -41,46 +41,36 @@ sealed class Result<out T>(open val data: T? = null) {
      * ```
      * val result = Result.loading("my data")
      * result.onLoading {
-     *     Log.d("Data: ${data}.")
+     *     Log.d("Loading data: ${it.data}.")
      * }
      * ```
      *
      * @param handler The handler that will get called when [isLoading] is
      * `true`, otherwise this handler will not get called.
      */
-    fun onLoading(handler: Result<T>.() -> Unit) {
+    fun onLoading(handler: (Result<T>) -> Unit) {
         if (isLoading) {
             handler(this)
         }
     }
 
     /**
-     * A handy method to handle result loading state, whether [isLoading] is
-     * returning `true` or `false`.
+     * A handy method to handle when [isLoading] return `false`.
      *
      * ### Example
      * ```
      * val result = Result.loading("my data")
-     * result.onLoading({
-     *     Log.d("On loading data: ${data}.")
-     * }, {
-     *     Log.d("On not loading data:${data}.")
-     * })
+     * result.onNotLoading {
+     *     Log.d("Not loading data: ${it.data}.")
+     * }
      * ```
      *
-     * @param onLoading The handler that will get called when [isLoading] is
-     * `true`, otherwise this handler will not get called.
-     * @param onNotLoading The handler that will get called when [isLoading] is
+     * @param handler The handler that will get called when [isLoading] is
      * `false`, otherwise this handler will not get called.
      */
-    fun onLoading(
-        onLoading: Result<T>.() -> Unit,
-        onNotLoading: Result<T>.() -> Unit
-    ) {
-        if (isLoading) {
-            onLoading(this)
-        } else {
-            onNotLoading(this)
+    fun onNotLoading(handler: (Result<T>) -> Unit) {
+        if (!isLoading) {
+            handler(this)
         }
     }
 
@@ -91,14 +81,14 @@ sealed class Result<out T>(open val data: T? = null) {
      * ```
      * val result = Result.success("my data")
      * result.onSuccess {
-     *     Log.d("Data: ${data}.")
+     *     Log.d("Data: ${it.data}.")
      * }
      * ```
      *
      * @param handler The handler that will get called when [isSuccess] is
      * `true`, otherwise this handler will not get called.
      */
-    fun onSuccess(handler: Result<T>.() -> Unit) {
+    fun onSuccess(handler: (Result<T>) -> Unit) {
         if (isSuccess) {
             handler(this)
         }
@@ -110,8 +100,8 @@ sealed class Result<out T>(open val data: T? = null) {
      * ### Example
      * ```
      * val result = Result.error(Throwable())
-     * result.onFailure { throwable ->
-     *     Log.d("Data: ${data}.")
+     * result.onFailure { r, throwable ->
+     *     Log.d("Data: ${r.data}.")
      *     Log.e(throwable)
      * }
      * ```
@@ -119,7 +109,7 @@ sealed class Result<out T>(open val data: T? = null) {
      * @param handler The handler that will get called when [isSuccess] is
      * `true`, otherwise this handler will not get called.
      */
-    fun onFailure(handler: Result<T>.(Throwable) -> Unit) {
+    fun onFailure(handler: (Result<T>, Throwable) -> Unit) {
         if (this is Error) {
             handler(this, throwable)
         }

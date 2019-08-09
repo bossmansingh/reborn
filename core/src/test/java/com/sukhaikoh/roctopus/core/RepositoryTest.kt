@@ -791,8 +791,8 @@ class RepositoryTest {
                     option.startWithUpstreamResult()
                         .onSuccess { result ->
                             result.onSuccess {
-                                if (data != null) {
-                                    dao.update(id, data!!)
+                                if (it.data != null) {
+                                    dao.update(id, it.data!!)
 
                                     // To simulate dao.save successfully
                                     // modified the data source
@@ -844,8 +844,8 @@ class RepositoryTest {
                         .ignoreResult()
                         .onSuccess { result ->
                             result.onSuccess {
-                                if (data != null) {
-                                    dao.update(id, data!!)
+                                if (it.data != null) {
+                                    dao.update(id, it.data!!)
                                 }
                             }
                         }

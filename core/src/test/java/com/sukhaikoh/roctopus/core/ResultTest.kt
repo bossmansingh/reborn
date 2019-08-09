@@ -120,6 +120,20 @@ class ResultTest {
     }
 
     @Test
+    fun `when isLoading is true then onNotLoading will not get called`() {
+        val result = Result.loading(data)
+
+        assertTrue(result.isLoading)
+
+        var called = false
+        result.onNotLoading {
+            called = true
+        }
+
+        assertFalse(called)
+    }
+
+    @Test
     fun `when isLoading is false then onLoading will not get called`() {
         val result = Result.success(data)
 
@@ -134,37 +148,17 @@ class ResultTest {
     }
 
     @Test
-    fun `when isLoading is true then onLoading will call correct block`() {
-        val result = Result.loading(data)
-
-        assertTrue(result.isLoading)
-
-        var onLoadingCalled = false
-        var onNotLoadingCalled = false
-        result.onLoading(
-            onLoading = { onLoadingCalled = true },
-            onNotLoading = { onNotLoadingCalled = true }
-        )
-
-        assertTrue(onLoadingCalled)
-        assertFalse(onNotLoadingCalled)
-    }
-
-    @Test
-    fun `when isLoading is false then onLoading will call correct block`() {
+    fun `when isLoading is false then onNotLoading will get called`() {
         val result = Result.success(data)
 
         assertFalse(result.isLoading)
 
-        var onLoadingCalled = false
-        var onNotLoadingCalled = false
-        result.onLoading(
-            onLoading = { onLoadingCalled = true },
-            onNotLoading = { onNotLoadingCalled = true }
-        )
+        var called = false
+        result.onNotLoading {
+            called = true
+        }
 
-        assertFalse(onLoadingCalled)
-        assertTrue(onNotLoadingCalled)
+        assertTrue(called)
     }
 
     @Test
@@ -203,7 +197,7 @@ class ResultTest {
         assertTrue(result.isFailure)
 
         var called = false
-        result.onFailure { throwable ->
+        result.onFailure { _, throwable ->
             assertEquals(expected, throwable)
             called = true
         }
@@ -218,7 +212,7 @@ class ResultTest {
         assertFalse(result.isFailure)
 
         var called = false
-        result.onFailure {
+        result.onFailure { _, _ ->
             called = true
         }
 
