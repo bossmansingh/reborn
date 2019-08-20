@@ -1,3 +1,4 @@
-rootProject.name = 'roctopus'
+rootProject.name = 'reborn'
 
-include ':core', 'testhelper'
+include ':core', 'testhelper', 'result'
+
