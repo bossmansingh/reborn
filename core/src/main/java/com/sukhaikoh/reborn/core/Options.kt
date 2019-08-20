@@ -1,6 +1,6 @@
-package com.sukhaikoh.roctopus.core
+package com.sukhaikoh.reborn.core
 
-import com.sukhaikoh.roctopus.core.rate.Rate
+import com.sukhaikoh.reborn.core.rate.Rate
 
 data class Options<T> internal constructor(
     internal var startWithUpstreamResult: Boolean = false

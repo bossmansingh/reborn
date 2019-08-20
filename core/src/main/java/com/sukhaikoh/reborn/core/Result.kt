@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core
+package com.sukhaikoh.reborn.core
 
 /**
  * A class that holds a value representing the result from a request. You

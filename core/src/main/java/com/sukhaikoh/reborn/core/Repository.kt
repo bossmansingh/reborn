@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core
+package com.sukhaikoh.reborn.core
 
 import io.reactivex.Flowable
 import io.reactivex.Scheduler

@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core.rate
+package com.sukhaikoh.reborn.core.rate
 
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue

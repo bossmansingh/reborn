@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core
+package com.sukhaikoh.reborn.core
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -6,9 +6,9 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import com.sukhaikoh.roctopus.core.Repository.Companion.prepare
-import com.sukhaikoh.roctopus.core.rate.Rate.Companion.once
-import com.sukhaikoh.roctopus.testhelper.SchedulersTestExtension
+import com.sukhaikoh.reborn.core.Repository.Companion.prepare
+import com.sukhaikoh.reborn.core.rate.Rate.Companion.once
+import com.sukhaikoh.reborn.testhelper.SchedulersTestExtension
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers

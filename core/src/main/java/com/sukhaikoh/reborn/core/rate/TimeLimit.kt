@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core.rate
+package com.sukhaikoh.reborn.core.rate
 
 import java.util.concurrent.TimeUnit
 

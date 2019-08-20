@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core
+package com.sukhaikoh.reborn.core
 
 internal data class StreamObject<T>(
     val result: Result<T>,

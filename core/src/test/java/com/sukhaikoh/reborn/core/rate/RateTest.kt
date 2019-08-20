@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core.rate
+package com.sukhaikoh.reborn.core.rate
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times

@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.core
+package com.sukhaikoh.reborn.core
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
