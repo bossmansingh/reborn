@@ -272,22 +272,4 @@ class RebornFlowableTest {
             .test()
             .assertValues(Result.success(data2))
     }
-
-    class Dao {
-        private val users = mutableListOf<User>()
-
-        fun loadUsers(): Flowable<List<User>> {
-            return Flowable.just(users)
-        }
-
-    }
-
-    class Api {
-
-    }
-
-    data class User(
-        val name: String,
-        val age: Int
-    )
 }
