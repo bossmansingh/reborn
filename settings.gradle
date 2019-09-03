@@ -1,4 +1,3 @@
 rootProject.name = 'reborn'
 
-include ':core', 'testhelper', 'result'
-
+include 'testhelper', 'reborn', 'result'

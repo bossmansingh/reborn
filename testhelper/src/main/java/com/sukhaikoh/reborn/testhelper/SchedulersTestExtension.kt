@@ -1,4 +1,4 @@
-package com.sukhaikoh.roctopus.testhelper
+package com.sukhaikoh.reborn.testhelper
 
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
