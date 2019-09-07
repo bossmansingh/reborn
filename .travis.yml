@@ -1,0 +1,17 @@
+language: java
+jdk:
+  - openjdk8
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle
+
+install: true
+
+jobs:
+  include:
+    - stage: Build
+      script: ./gradlew build
+    - stage: Unit Tests
+      script: ./gradlew test

@@ -272,5 +272,4 @@ class RebornMaybeTest {
             .test()
             .assertValues(Result.success(data2))
     }
-
 }

@@ -2,7 +2,6 @@ package com.sukhaikoh.reborn
 
 import com.sukhaikoh.reborn.result.Result
 import com.sukhaikoh.reborn.testhelper.SchedulersTestExtension
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.exceptions.CompositeException
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -273,22 +272,4 @@ class RebornObservableTest {
             .test()
             .assertValues(Result.success(data2))
     }
-
-    class Dao {
-        private val users = mutableListOf<User>()
-
-        fun loadUsers(): Flowable<List<User>> {
-            return Flowable.just(users)
-        }
-
-    }
-
-    class Api {
-
-    }
-
-    data class User(
-        val name: String,
-        val age: Int
-    )
 }
