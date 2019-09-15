@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.18"
+    }
+}
+
+apply plugin: "maven-publish"
+apply plugin: 'org.jetbrains.dokka'
+
+jar {
+    manifest {
+        attributes "Implementation-Title": project.name,
+        "Implementation-Version": project.version
+    }
+    shouldRunAfter test
+}
+
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+task sourcesJar(type: Jar) {
+    classifier = "sources"
+    from sourceSets.main.allSource
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = "javadoc"
+    outputDirectory = "$buildDir/dokkaJavadoc"
+}
+
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+    classifier = "javadoc"
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        artifact(MavenPublication) {
+            groupId "${project.group}"
+            artifactId "${project.name}"
+            version "${project.version}"
+
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+dependencies {
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.18"
+}

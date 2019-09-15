@@ -6,21 +6,18 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.41"
         classpath "org.jacoco:org.jacoco.core:0.8.4"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.18"
     }
 }
-
-group = "com.sukhaikoh.roctopus"
-version = project.properties["release.version"]
-
-def juniVersion = '5.4.0'
-def mockitoVersion = '2.28.2'
-def mockitoKotlinVersion = '2.1.0'
 
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'jacoco'
     apply from: "$rootDir/gradle/ktlint.gradle"
     apply from: "$rootDir/gradle/tests.gradle"
+
+    group = "com.sukhaikoh.reborn"
+    version = project.properties["release.version"]
 
     repositories {
         jcenter()
