@@ -16,6 +16,7 @@ jobs:
     - stage: Unit Tests
       script: ./gradlew test
     - stage: GitHub Release
+      script: echo "Deploying to GitHub releases..."
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
