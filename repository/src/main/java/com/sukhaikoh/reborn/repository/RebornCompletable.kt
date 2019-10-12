@@ -26,7 +26,7 @@ class RebornCompletable private constructor()
  * Returns a [Flowable] which will subscribe to this [Completable] and once that is
  * completed then will subscribe to the next [Flowable] from [mapper].
  * An error event from this [Completable] will result in [Flowable] with [Result.error]
- * being returned. The [Flowable] will contain a [Result] with data [T].
+ * being returned.
  *
  * If [skip] returns `true`, then the [Flowable] will contains [Result.success]
  * with `null` data. If [skip] returns `false`, then the [Flowable] will contains
@@ -53,10 +53,10 @@ class RebornCompletable private constructor()
  *
  * @param T the type of the data that gets loaded.
  * @param skip a function that return `true` to skip executing [mapper], which means the upstream
- * [Result] will be returned, or `false` to executing [mapper] and the [Result] from this [mapper]
+ * [Result] will be returned, or `false` to execute [mapper] and the [Result] from this [mapper]
  * will be returned.
- * @param mapper a function that return [Result] in a [Flowable].
- * @return a [Flowable] that contains [Result].
+ * @param mapper a function that return [Flowable]<[Result]<[T]>>.
+ * @return a [Flowable]<[Result]<[T]>>.
  */
 fun <T> Completable.load(
     skip: (Result<T>) -> Boolean = { false },
