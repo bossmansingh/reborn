@@ -1,41 +1,41 @@
-package com.sukhaikoh.reborn
+package com.sukhaikoh.reborn.repository
 
 import com.sukhaikoh.reborn.result.Result
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.exceptions.CompositeException
 
-class RebornFlowable private constructor() {
+class RebornObserable private constructor() {
 
     companion object {
         @JvmStatic
-        fun <T> load(data: T): Flowable<Result<T>> {
-            return Flowable.just(data)
+        fun <T> load(data: T): Observable<Result<T>> {
+            return Observable.just(data)
                 .result()
         }
 
         @JvmStatic
-        fun <T> load(flowable: Flowable<T>): Flowable<Result<T>> {
-            return flowable.result()
+        fun <T> load(observable: Observable<T>): Observable<Result<T>> {
+            return observable.result()
         }
     }
 }
 
-fun <T> Flowable<Result<T>>.load(
+fun <T> Observable<Result<T>>.load(
     skip: (Result<T>) -> Boolean = { false },
-    mapper: (Result<T>) -> Flowable<Result<T>>
-): Flowable<Result<T>> {
+    mapper: (Result<T>) -> Observable<Result<T>>
+): Observable<Result<T>> {
     return flatMap { upstream ->
         if (skip(upstream)) {
-            Flowable.just(upstream)
+            Observable.just(upstream)
         } else {
             try {
                 mapper(upstream)
             } catch (t: Throwable) {
-                Flowable.error<Result<T>>(t)
+                Observable.error<Result<T>>(t)
             }
         }.onErrorReturn { t: Throwable ->
             if (upstream.cause != null) {
-                com.sukhaikoh.reborn.result.Result.error(CompositeException(upstream.cause, t), upstream.data)
+                Result.error(CompositeException(upstream.cause, t), upstream.data)
             } else {
                 upstream.toError(t)
             }
@@ -45,7 +45,7 @@ fun <T> Flowable<Result<T>>.load(
     }
 }
 
-fun <T> Flowable<Result<T>>.doOnSuccess(mapper: (Result<T>) -> Unit): Flowable<Result<T>> {
+fun <T> Observable<Result<T>>.doOnSuccess(mapper: (Result<T>) -> Unit): Observable<Result<T>> {
     return doOnNext {
         if (it.isSuccess) {
             mapper(it)
@@ -53,7 +53,7 @@ fun <T> Flowable<Result<T>>.doOnSuccess(mapper: (Result<T>) -> Unit): Flowable<R
     }
 }
 
-fun <T> Flowable<Result<T>>.doOnFailure(mapper: (Result<T>) -> Unit): Flowable<Result<T>> {
+fun <T> Observable<Result<T>>.doOnFailure(mapper: (Result<T>) -> Unit): Observable<Result<T>> {
     return doOnNext {
         if (it.isFailure) {
             mapper(it)
@@ -61,7 +61,7 @@ fun <T> Flowable<Result<T>>.doOnFailure(mapper: (Result<T>) -> Unit): Flowable<R
     }
 }
 
-fun <T> Flowable<Result<T>>.doOnLoading(mapper: (Result<T>) -> Unit): Flowable<Result<T>> {
+fun <T> Observable<Result<T>>.doOnLoading(mapper: (Result<T>) -> Unit): Observable<Result<T>> {
     return doOnNext {
         if (it.isLoading) {
             mapper(it)
@@ -69,7 +69,7 @@ fun <T> Flowable<Result<T>>.doOnLoading(mapper: (Result<T>) -> Unit): Flowable<R
     }
 }
 
-fun <T> Flowable<T>.result(): Flowable<Result<T>> {
+fun <T> Observable<T>.result(): Observable<Result<T>> {
     return map { Result.success(it) }
         .switchIfEmpty { it.onNext(Result.success()) }
         .onErrorReturn { Result.error(it) }
