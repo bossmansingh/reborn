@@ -22,6 +22,42 @@ import io.reactivex.Flowable
 
 class RebornCompletable private constructor()
 
+/**
+ * Returns a [Flowable] which will subscribe to this [Completable] and once that is
+ * completed then will subscribe to the next [Flowable] from [mapper].
+ * An error event from this [Completable] will result in [Flowable] with [Result.error]
+ * being returned. The [Flowable] will contain a [Result] with data [T].
+ *
+ * If [skip] returns `true`, then the [Flowable] will contains [Result.success]
+ * with `null` data. If [skip] returns `false`, then the [Flowable] will contains
+ * [Result] returning from [mapper]. If the [mapper] has any error, then
+ * [Result.error] will be in the returned [Flowable].
+ *
+ * ### Example
+ * ```
+ * Completable.complete()
+ *     .load<Int> {
+ *         Flowable.just(
+ *             Result.success(1),
+ *             Result.success(2),
+ *             Result.success(3)
+ *         )
+ *     }
+ *     .subscribe { result ->
+ *         print("${result.data} ")
+ *     }
+ *
+ * // Print
+ * 1 2 3
+ * ```
+ *
+ * @param T the type of the data that gets loaded.
+ * @param skip a function that return `true` to skip executing [mapper], which means the upstream
+ * [Result] will be returned, or `false` to executing [mapper] and the [Result] from this [mapper]
+ * will be returned.
+ * @param mapper a function that return [Result] in a [Flowable].
+ * @return a [Flowable] that contains [Result].
+ */
 fun <T> Completable.load(
     skip: (Result<T>) -> Boolean = { false },
     mapper: (Result<T>) -> Flowable<Result<T>>
