@@ -2,7 +2,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-apply from: "$rootDir/gradle/kotlin-publish.gradle"
+apply from: "$rootDir/gradle/java-library.gradle"
 
 dependencies {
     api project(":result")

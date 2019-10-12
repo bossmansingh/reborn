@@ -1,65 +1,91 @@
 buildscript {
+    ext.versions = [
+        'android_core'        : '1.1.0',
+        'android_espresso'    : '3.2.0',
+        'android_junit'       : '1.1.0',
+        'android_maven'       : '2.1',
+        'android_orchestrator': '1.1.1',
+        'dagger'              : '2.22.1',
+        'dokka'               : '0.10.0',
+        'google_play'         : '1.6.3',
+        'gradle'              : '3.5.0',
+        'jacoco'              : '0.8.4',
+        'junit'               : '5.4.0',
+        'kotlin_version'      : '1.3.50',
+        'ktlint'              : '0.31.0',
+        'mannodermaus'        : '1.4.2.1',
+        'mockito'             : '2.28.2',
+        'mockito_kotlin'      : '2.1.0'
+    ]
     repositories {
+        google()
         jcenter()
-        mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.41"
-        classpath "org.jacoco:org.jacoco.core:0.8.4"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.18"
+        classpath "com.android.tools.build:gradle:${versions.gradle}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin_version}"
+        classpath "org.jacoco:org.jacoco.core:${versions.jacoco}"
+        classpath "de.mannodermaus.gradle.plugins:android-junit5:${versions.mannodermaus}"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:${versions.android_maven}"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
     }
 }
 
 subprojects {
-    apply plugin: 'java-library'
-    apply plugin: 'jacoco'
-    apply from: "$rootDir/gradle/ktlint.gradle"
-    apply from: "$rootDir/gradle/tests.gradle"
-
-    group = "com.sukhaikoh.reborn"
+    group = project.properties["release.group"]
     version = project.properties["release.version"]
+}
 
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
 
-    sourceCompatibility = "8"
-    targetCompatibility = "8"
-
-    jacoco {
-        toolVersion = "0.8.4"
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled = true
-            html.enabled = true
-        }
-
-        def javaClasses = fileTree(dir: "${buildDir}/classes/java/main")
-        def kotlinClasses = fileTree(dir: "${buildDir}/classes/kotlin/main")
-
-        classDirectories = files([javaClasses, kotlinClasses])
-        sourceDirectories = files([
-                "${project.projectDir}/src/main/java",
-                "${project.projectDir}/src/main/kotlin"
-        ])
-
-        executionData = files("${project.buildDir}/jacoco/test.exec")
-
-        afterEvaluate {
-            classDirectories = files(classDirectories.files.collect {
-                fileTree(dir: it)
-            })
+String getEnvProperty(String key) {
+    String property = System.getenv(key)
+    if (property == null) {
+        try {
+            property = getProperty(key)
+        } catch (Exception ignored) {
+            // Ignored
         }
     }
 
-    jacocoTestReport.dependsOn test
-
-    dependencies {
-        implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    if (property == null) {
+        property = getPropertyFromFile(
+            key,
+            rootProject.file('gradle.properties').newDataInputStream()
+        )
     }
+    if (property == null) {
+        property = getPropertyFromFile(
+            key,
+            rootProject.file('local.properties').newDataInputStream()
+        )
+    }
+    if (property == null) {
+        property = getPropertyFromFile(
+            key,
+            ("${System.properties['user.home']}${File.separator}.gradle${File.separator}gradle.properties" as File).newDataInputStream()
+        )
+    }
+    return property
+}
+
+static String getPropertyFromFile(String key, InputStream inputStream) {
+    Properties properties = new Properties()
+    try {
+        properties.load(inputStream)
+    } catch (IOException ignored) {
+        // Ignored
+    }
+
+    return properties.getProperty(key)
 }

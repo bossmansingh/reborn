@@ -1,0 +1,44 @@
+
+apply plugin: 'java-library'
+apply plugin: 'jacoco'
+apply from: "$rootDir/gradle/ktlint.gradle"
+apply from: "$rootDir/gradle/tests.gradle"
+apply from: "$rootDir/gradle/jar-publish.gradle"
+
+sourceCompatibility = "8"
+targetCompatibility = "8"
+
+jacoco {
+    toolVersion = "${versions.jacoco}"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def javaClasses = fileTree(dir: "${buildDir}/classes/java/main")
+    def kotlinClasses = fileTree(dir: "${buildDir}/classes/kotlin/main")
+
+    classDirectories = files([javaClasses, kotlinClasses])
+    sourceDirectories = files([
+            "${project.projectDir}/src/main/java",
+            "${project.projectDir}/src/main/kotlin"
+    ])
+
+    executionData = files("${project.buildDir}/jacoco/test.exec")
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it)
+        })
+    }
+}
+
+jacocoTestReport.dependsOn test
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin_version}"
+}
