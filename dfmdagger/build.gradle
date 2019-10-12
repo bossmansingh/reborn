@@ -1,0 +1,15 @@
+apply from: "$rootDir/gradle/android-library.gradle"
+apply from: "$rootDir/gradle/ktlint.gradle"
+apply from: "$rootDir/gradle/android-tests.gradle"
+
+dependencies {
+    api "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin_version}"
+
+    api "com.google.android.play:core:${versions.google_play}"
+
+    api "androidx.appcompat:appcompat:${versions.android_core}"
+
+    api "com.google.dagger:dagger:${versions.dagger}"
+    api "com.google.dagger:dagger-android:${versions.dagger}"
+    api "com.google.dagger:dagger-android-support:${versions.dagger}"
+}
