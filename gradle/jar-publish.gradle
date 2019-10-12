@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.18"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
     }
 }
 
@@ -24,7 +24,7 @@ dokka {
 }
 
 task sourcesJar(type: Jar) {
-    classifier = "sources"
+    archiveClassifier.set("sources")
     from sourceSets.main.allSource
 }
 
@@ -34,7 +34,7 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 }
 
 task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    classifier = "javadoc"
+    archiveClassifier.set("javadoc")
     from javadoc.destinationDir
 }
 
@@ -53,5 +53,5 @@ publishing {
 }
 
 dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:0.9.18"
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:${versions.dokka}"
 }
