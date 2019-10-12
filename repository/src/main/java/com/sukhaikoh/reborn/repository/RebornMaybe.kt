@@ -1,4 +1,4 @@
-package com.sukhaikoh.reborn
+package com.sukhaikoh.reborn.repository
 
 import com.sukhaikoh.reborn.result.Result
 import io.reactivex.Maybe

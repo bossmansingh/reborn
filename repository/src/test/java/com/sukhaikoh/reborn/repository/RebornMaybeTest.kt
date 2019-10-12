@@ -1,53 +1,51 @@
-package com.sukhaikoh.reborn
+package com.sukhaikoh.reborn.repository
 
 import com.sukhaikoh.reborn.result.Result
 import com.sukhaikoh.reborn.testhelper.SchedulersTestExtension
-import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.exceptions.CompositeException
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(SchedulersTestExtension::class)
-class RebornFlowableTest {
+class RebornMaybeTest {
 
     @Test
-    fun `when Flowable result with data then downstream receive Result success with upstream data`() {
+    fun `when Maybe result with data then downstream receive Result success with upstream data`() {
         val data = "data"
 
-        Flowable.just(data)
+        Maybe.just(data)
             .result()
             .test()
             .assertValues(Result.success(data))
     }
 
     @Test
-    fun `when Flowable result with empty upstream then downstream receive Result success with no data`() {
-        Flowable.empty<Nothing>()
+    fun `when Maybe result with empty upstream then downstream receive Result success with no data`() {
+        Maybe.empty<Nothing>()
             .result()
             .test()
             .assertValues(Result.success())
     }
 
     @Test
-    fun `when Flowable result with upstream error then downstream receive Result error`() {
+    fun `when Maybe result with upstream error then downstream receive Result error`() {
         val throwable = Throwable()
 
-        Flowable.error<Nothing>(throwable)
+        Maybe.error<Nothing>(throwable)
             .result()
             .test()
             .assertValues(Result.error(throwable))
     }
 
     @Test
-    fun `when Flowable doOnSuccess with Result success then call mapper`() {
+    fun `when Maybe doOnSuccess with Result success then call mapper`() {
         val data = "data"
         var called = false
 
-        Flowable.just(Result.success(data))
-            .doOnSuccess {
+        Maybe.just(Result.success(data))
+            .doOnResultSuccess {
                 assertEquals(Result.success(data), it)
                 called = true
             }
@@ -58,11 +56,11 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnSuccess with Result loading then do not call mapper`() {
+    fun `when Maybe doOnSuccess with Result loading then do not call mapper`() {
         var called = false
 
-        Flowable.just(Result.loading<Nothing>())
-            .doOnSuccess { called = true }
+        Maybe.just(Result.loading<Nothing>())
+            .doOnResultSuccess { called = true }
             .test()
             .assertComplete()
 
@@ -70,11 +68,11 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnSuccess with Result error then do not call mapper`() {
+    fun `when Maybe doOnSuccess with Result error then do not call mapper`() {
         var called = false
 
-        Flowable.just(Result.error<Nothing>(Throwable()))
-            .doOnSuccess { called = true }
+        Maybe.just(Result.error<Nothing>(Throwable()))
+            .doOnResultSuccess { called = true }
             .test()
             .assertComplete()
 
@@ -82,12 +80,12 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnFailure with Result error then call mapper`() {
+    fun `when Maybe doOnFailure with Result error then call mapper`() {
         val data = "data"
         val throwable = Throwable()
         var called = false
 
-        Flowable.just(Result.error(throwable, data))
+        Maybe.just(Result.error(throwable, data))
             .doOnFailure {
                 assertEquals(Result.error(throwable, data), it)
                 called = true
@@ -99,10 +97,10 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnFailure with Result loading then do not call mapper`() {
+    fun `when Maybe doOnFailure with Result loading then do not call mapper`() {
         var called = false
 
-        Flowable.just(Result.loading<Nothing>())
+        Maybe.just(Result.loading<Nothing>())
             .doOnFailure { called = true }
             .test()
             .assertComplete()
@@ -111,10 +109,10 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnFailure with Result success then do not call mapper`() {
+    fun `when Maybe doOnFailure with Result success then do not call mapper`() {
         var called = false
 
-        Flowable.just(Result.success<Nothing>())
+        Maybe.just(Result.success<Nothing>())
             .doOnFailure { called = true }
             .test()
             .assertComplete()
@@ -123,11 +121,11 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnLoading with Result loading then call mapper`() {
+    fun `when Maybe doOnLoading with Result loading then call mapper`() {
         val data = "data"
         var called = false
 
-        Flowable.just(Result.loading(data))
+        Maybe.just(Result.loading(data))
             .doOnLoading {
                 assertEquals(Result.loading(data), it)
                 called = true
@@ -139,10 +137,10 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnLoading with Result error then do not call mapper`() {
+    fun `when Maybe doOnLoading with Result error then do not call mapper`() {
         var called = false
 
-        Flowable.just(Result.error<Nothing>(Throwable()))
+        Maybe.just(Result.error<Nothing>(Throwable()))
             .doOnLoading { called = true }
             .test()
             .assertComplete()
@@ -151,10 +149,10 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable doOnLoading with Result success then do not call mapper`() {
+    fun `when Maybe doOnLoading with Result success then do not call mapper`() {
         var called = false
 
-        Flowable.just(Result.success<Nothing>())
+        Maybe.just(Result.success<Nothing>())
             .doOnLoading { called = true }
             .test()
             .assertComplete()
@@ -163,15 +161,15 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable load with skip return true then do no call mapper`() {
+    fun `when Maybe load with skip return true then do no call mapper`() {
         var called = false
         val data = "data"
         val data1 = "data1"
 
-        Flowable.just(Result.success(data))
+        Maybe.just(Result.success(data))
             .load({ true }) {
                 called = true
-                Flowable.just(Result.success(data1))
+                Maybe.just(Result.success(data1))
             }
             .test()
             .assertValues(Result.success(data))
@@ -180,47 +178,47 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable load with skip return false then call mapper`() {
+    fun `when Maybe load with skip return false then call mapper`() {
         val data1 = "data1"
         val data2 = "data2"
 
-        Flowable.just(Result.success(data1))
+        Maybe.just(Result.success(data1))
             .load({ false }) {
-                Flowable.just(Result.success(data2))
+                Maybe.just(Result.success(data2))
             }
             .test()
             .assertValues(Result.success(data2))
     }
 
     @Test
-    fun `when Flowable load and mapper throws error then map to Result error`() {
+    fun `when Maybe load and mapper throws error then map to Result error`() {
         val throwable = Throwable()
         val data = "data"
 
-        Flowable.just(Result.success(data))
+        Maybe.just(Result.success(data))
             .load { throw throwable }
             .test()
             .assertValues(Result.error(throwable, data))
     }
 
     @Test
-    fun `when Flowable load and mapper emit error then map to Result error`() {
+    fun `when Maybe load and mapper emit error then map to Result error`() {
         val throwable = Throwable()
         val data = "data"
 
-        Flowable.just(Result.success(data))
-            .load { Flowable.error(throwable) }
+        Maybe.just(Result.success(data))
+            .load { Maybe.error(throwable) }
             .test()
             .assertValues(Result.error(throwable, data))
     }
 
     @Test
-    fun `when Flowable load and mapper throws error and upstream also is error then map to Result CompositeException`() {
+    fun `when Maybe load and mapper throws error and upstream also is error then map to Result CompositeException`() {
         val upstreamThrowable = NullPointerException()
         val throwable = IllegalArgumentException()
         val data = "data"
 
-        val result = Flowable.just(Result.error(upstreamThrowable, data))
+        val result = Maybe.just(Result.error(upstreamThrowable, data))
             .load { throw throwable }
             .test()
             .values()
@@ -234,13 +232,13 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable load and mapper emit error and upstream also is error then map to Result CompositeException`() {
+    fun `when Maybe load and mapper emit error and upstream also is error then map to Result CompositeException`() {
         val upstreamThrowable = NullPointerException()
         val throwable = IllegalArgumentException()
         val data = "data"
 
-        val result = Flowable.just(Result.error(upstreamThrowable, data))
-            .load { Flowable.error(throwable) }
+        val result = Maybe.just(Result.error(upstreamThrowable, data))
+            .load { Maybe.error(throwable) }
             .test()
             .values()
             .last()
@@ -253,22 +251,22 @@ class RebornFlowableTest {
     }
 
     @Test
-    fun `when Flowable load and mapper emit empty Flowable then map to Result success`() {
+    fun `when Maybe load and mapper emit empty Maybe then map to Result success`() {
         val data = "data"
 
-        Flowable.just(Result.success(data))
-            .load { Flowable.empty() }
+        Maybe.just(Result.success(data))
+            .load { Maybe.empty() }
             .test()
             .assertValues(Result.success(data))
     }
 
     @Test
-    fun `when Flowable load and mapper emit result then same result will be passed to downstream`() {
+    fun `when Maybe load and mapper emit result then same result will be passed to downstream`() {
         val data1 = "data1"
         val data2 = "data2"
 
-        Flowable.just(Result.success(data1))
-            .load { Flowable.just(data2).result() }
+        Maybe.just(Result.success(data1))
+            .load { Maybe.just(data2).result() }
             .test()
             .assertValues(Result.success(data2))
     }
