@@ -8,7 +8,7 @@ It has a list of extension functions for RxJava to easily
 load and save data to multiple data sources when working on
 a repository.
 
-# License
+## License
 ```
 Copyright (C) 2019 Su Khai Koh
 
