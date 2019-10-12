@@ -23,12 +23,60 @@ import io.reactivex.exceptions.CompositeException
 class RebornFlowable private constructor() {
 
     companion object {
+        /**
+         * Load the [data] and return as a [Flowable]<[Result]<[T]>>.
+         *
+         * This is a short hand of writing:
+         * ```
+         * Flowable.just("my data").result()
+         * ```
+         *
+         * ### Example
+         * ```
+         * RebornFlowable.load(123)
+         *     .subscribe { result ->
+         *         print(result.data)
+         *     }
+         *
+         * // Print
+         * 123
+         * ```
+         *
+         * @param T the type of the data that gets loaded.
+         * @param data the data to be returned in a [Flowable].
+         * @return a [Flowable]<[Result]<[T]>>.
+         */
         @JvmStatic
         fun <T> load(data: T): Flowable<Result<T>> {
             return Flowable.just(data)
                 .result()
         }
 
+        /**
+         * Transform the given [flowable] of type [T] into a [Flowable]<[Result]<[T]>>.
+         *
+         * This is a short hand of writing:
+         * ```
+         * val flowable = Flowable.just(123)
+         *
+         * flowable.result()
+         * ```
+         *
+         * ### Example
+         * ```
+         * RebornFlowable.load(Flowable.just(123))
+         *     .subscribe { result ->
+         *         print(result.data)
+         *     }
+         *
+         * // Print
+         * 123
+         * ```
+         *
+         * @param T the type of the data that gets loaded.
+         * @param flowable the [Flowable].
+         * @return a [Flowable]<[Result]<[T]>>.
+         */
         @JvmStatic
         fun <T> load(flowable: Flowable<T>): Flowable<Result<T>> {
             return flowable.result()
@@ -36,6 +84,34 @@ class RebornFlowable private constructor() {
     }
 }
 
+/**
+ * Returns a [Flowable] that is based on applying a specified function to the item emitted
+ * by the upstream, where that function returns a [Flowable]<[Result]<[T]>>.
+ *
+ * If [skip] returns `true`, then the upstream [Flowable] will be returned. If [skip] returns
+ * `false`, result from [mapper] will be returned. If the [mapper] has any error, then
+ * [Result.error] will be in the returned [Flowable]. If the [mapper] is empty, upstream
+ * data with [Result.success] will be returned.
+ *
+ * ### Example
+ * ```
+ * Flowable.just(Result.success(1))
+ *     .load { Flowable.just(Result.success(2)) }
+ *     .subscribe { result ->
+ *         print("${result.data}")
+ *     }
+ *
+ * // Print
+ * 2
+ * ```
+ *
+ * @param T the type of the data that gets loaded.
+ * @param skip a function that return `true` to skip executing [mapper], which means the upstream
+ * [Result] will be returned, or `false` to execute [mapper] and the [Result] from this [mapper]
+ * will be returned.
+ * @param mapper a function that return [Flowable]<[Result]<[T]>>.
+ * @return a [Flowable]<[Result]<[T]>>.
+ */
 fun <T> Flowable<Result<T>>.load(
     skip: (Result<T>) -> Boolean = { false },
     mapper: (Result<T>) -> Flowable<Result<T>>
@@ -61,30 +137,70 @@ fun <T> Flowable<Result<T>>.load(
     }
 }
 
-fun <T> Flowable<Result<T>>.doOnSuccess(mapper: (Result<T>) -> Unit): Flowable<Result<T>> {
+/**
+ * Modifies the source Publisher so that it invokes an action when it calls onNext with
+ * [Result.isSuccess].
+ *
+ * @param T the type of the data that gets loaded.
+ * @param onSuccess the consumer called with the success value of [Result.isSuccess].
+ * @return the new [Flowable] instance.
+ */
+fun <T> Flowable<Result<T>>.doOnSuccess(onSuccess: (Result<T>) -> Unit): Flowable<Result<T>> {
     return doOnNext {
         if (it.isSuccess) {
-            mapper(it)
+            onSuccess(it)
         }
     }
 }
 
-fun <T> Flowable<Result<T>>.doOnFailure(mapper: (Result<T>) -> Unit): Flowable<Result<T>> {
+/**
+ * Modifies the source Publisher so that it invokes an action when it calls onNext with
+ * [Result.isFailure].
+ *
+ * @param T the type of the data that gets loaded.
+ * @param onFailure the consumer called with the success value of [Result.isFailure].
+ * @return the new [Flowable] instance.
+ */
+fun <T> Flowable<Result<T>>.doOnFailure(onFailure: (Result<T>) -> Unit): Flowable<Result<T>> {
     return doOnNext {
         if (it.isFailure) {
-            mapper(it)
+            onFailure(it)
         }
     }
 }
 
-fun <T> Flowable<Result<T>>.doOnLoading(mapper: (Result<T>) -> Unit): Flowable<Result<T>> {
+/**
+ * Modifies the source Publisher so that it invokes an action when it calls onNext with
+ * [Result.isLoading].
+ *
+ * @param T the type of the data that gets loaded.
+ * @param onLoading the consumer called with the success value of [Result.isLoading].
+ * @return the new [Flowable] instance.
+ */
+fun <T> Flowable<Result<T>>.doOnLoading(onLoading: (Result<T>) -> Unit): Flowable<Result<T>> {
     return doOnNext {
         if (it.isLoading) {
-            mapper(it)
+            onLoading(it)
         }
     }
 }
 
+/**
+ * Wrap the data [T] with [Result].
+ *
+ * Returns a [Flowable] that wraps the item emitted by the source [Flowable] with
+ * [Result].
+ *
+ * If the source [Flowable] encounters an error, then a [Flowable] with
+ * [Result.error] will be returned. If the source [Flowable] is empty, then
+ * a [Flowable] with [Result.success] with `null` data will be returned,
+ * otherwise [Result.success] will be returned with item emitted by
+ * the source [Flowable].
+ *
+ * @param T the type of the data that gets loaded.
+ * @return a [Flowable] that emits the item from the source Flowable, transformed
+ * by wrapping the item with [Result].
+ */
 fun <T> Flowable<T>.result(): Flowable<Result<T>> {
     return map { Result.success(it) }
         .switchIfEmpty { it.onNext(Result.success()) }
