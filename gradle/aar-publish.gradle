@@ -11,9 +11,14 @@ apply plugin: "org.jetbrains.dokka"
 apply plugin: "com.github.dcendents.android-maven"
 
 dokka {
-    impliedPlatforms = ["common"]
     outputFormat = 'javadoc'
     outputDirectory = "$buildDir/javadoc"
+
+    configuration {
+        targets = ["JVM"]
+
+        platform = "JVM"
+    }
 }
 
 task javadocJar(type: Jar, dependsOn: dokka) {
