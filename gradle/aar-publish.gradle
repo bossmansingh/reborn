@@ -11,6 +11,7 @@ apply plugin: "org.jetbrains.dokka"
 apply plugin: "com.github.dcendents.android-maven"
 
 dokka {
+    impliedPlatforms = ["common"]
     outputFormat = 'javadoc'
     outputDirectory = "$buildDir/javadoc"
 }
