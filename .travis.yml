@@ -13,6 +13,8 @@ jobs:
   include:
     - stage: Assemble
       script: ./gradlew assemble
+    - stage: Analysis
+      script: ./gradlew ktlint
     - stage: Unit Tests
       script: ./gradlew runTest
     - stage: GitHub Release
