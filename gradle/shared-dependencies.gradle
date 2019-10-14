@@ -1,0 +1,28 @@
+dependencies {
+    implementation "com.google.android.material:material:${versions.android_material}"
+    implementation "androidx.core:core-ktx:${versions.android_core}"
+    implementation "androidx.fragment:fragment-ktx:${versions.android_fragment}"
+    implementation "androidx.navigation:navigation-fragment-ktx:${versions.android_navigation}"
+    implementation "androidx.navigation:navigation-ui-ktx:${versions.android_navigation}"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:${versions.android_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-extensions:${versions.android_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${versions.android_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:${versions.android_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.android_lifecycle}"
+
+    implementation "com.intuit.sdp:sdp-android:${versions.sdp}"
+
+    implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
+    implementation "com.squareup.retrofit2:converter-gson:${versions.retrofit}"
+    implementation "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:${versions.retrofit}"
+
+    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxjava_android}"
+    implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
+
+    implementation "com.google.dagger:dagger:${versions.dagger}"
+    implementation "com.google.dagger:dagger-android:${versions.dagger}"
+    implementation "com.google.dagger:dagger-android-support:${versions.dagger}"
+    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+    kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
+}

@@ -2,8 +2,19 @@ apply from: "$rootDir/gradle/android-library.gradle"
 apply from: "$rootDir/gradle/ktlint.gradle"
 apply from: "$rootDir/gradle/android-tests.gradle"
 
+android {
+    compileSdkVersion versions.sdk_compile
+
+    defaultConfig {
+        minSdkVersion versions.sdk_min
+        targetSdkVersion versions.sdk_target
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+}
+
 dependencies {
-    api "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin_version}"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin_version}"
 
     api "com.google.android.play:core:${versions.google_play}"
 
