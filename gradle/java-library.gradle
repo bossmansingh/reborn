@@ -3,7 +3,6 @@ apply plugin: 'java-library'
 apply plugin: 'jacoco'
 apply from: "$rootDir/gradle/ktlint.gradle"
 apply from: "$rootDir/gradle/tests.gradle"
-apply from: "$rootDir/gradle/jar-publish.gradle"
 
 sourceCompatibility = "8"
 targetCompatibility = "8"

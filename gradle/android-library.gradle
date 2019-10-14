@@ -50,5 +50,3 @@ dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin_version}"
 }
-
-apply from: "$rootDir/gradle/aar-publish.gradle"

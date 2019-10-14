@@ -13,3 +13,5 @@ dependencies {
     api "com.google.dagger:dagger-android:${versions.dagger}"
     api "com.google.dagger:dagger-android-support:${versions.dagger}"
 }
+
+apply from: "$rootDir/gradle/aar-publish.gradle"

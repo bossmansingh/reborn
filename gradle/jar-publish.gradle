@@ -1,14 +1,14 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
-    }
-}
+//buildscript {
+//    repositories {
+//        jcenter()
+//    }
+//    dependencies {
+//        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
+//    }
+//}
 
 apply plugin: "maven-publish"
-apply plugin: 'org.jetbrains.dokka'
+//apply plugin: 'org.jetbrains.dokka'
 
 jar {
     manifest {
@@ -18,22 +18,22 @@ jar {
     shouldRunAfter test
 }
 
-dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/javadoc"
-}
+//dokka {
+//    outputFormat = 'html'
+//    outputDirectory = "$buildDir/javadoc"
+//}
 
 task sourcesJar(type: Jar) {
     archiveClassifier.set("sources")
     from sourceSets.main.allSource
 }
 
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = "javadoc"
-    outputDirectory = "$buildDir/dokkaJavadoc"
-}
+//task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+//    outputFormat = "javadoc"
+//    outputDirectory = "$buildDir/dokkaJavadoc"
+//}
 
-task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+task javadocJar(type: Jar, dependsOn: dokka) {
     archiveClassifier.set("javadoc")
     from javadoc.destinationDir
 }
@@ -52,6 +52,6 @@ publishing {
     }
 }
 
-dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:${versions.dokka}"
-}
+//dependencies {
+//    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:${versions.dokka}"
+//}

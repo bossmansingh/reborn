@@ -10,3 +10,5 @@ dependencies {
 
     testImplementation project(':testhelper')
 }
+
+apply from: "$rootDir/gradle/jar-publish.gradle"
