@@ -41,8 +41,6 @@ allprojects {
 }
 
 subprojects {
-//    apply plugin: "org.jetbrains.dokka"
-
     group = project.properties["release.group"]
     version = project.properties["release.version"]
 
@@ -62,15 +60,6 @@ subprojects {
         }
         runTest.finalizedBy("test")
     }
-
-//    dokka {
-//        outputFormat = 'javadoc'
-//        outputDirectory = "$buildDir/javadoc"
-//    }
-//
-//    dependencies {
-//        dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:${versions.dokka}"
-//    }
 }
 
 task clean(type: Delete) {
