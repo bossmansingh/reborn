@@ -12,7 +12,7 @@ install: true
 jobs:
   include:
     - stage: Assemble
-      script: ./gradlew assemble --stacktrace
+      script: ./gradlew clean assemble --stacktrace
     - stage: Analysis
       script: ./gradlew ktlint
     - stage: Unit Tests
