@@ -58,11 +58,13 @@ subprojects {
     // We register plugin based on the type of the project
     // android vs java
     pluginManager.withPlugin("kotlin-android") {
-        tasks.register("runTest") {
-            group = "verification"
-            description = "Run all the tests with testDebugUnitTest"
+        afterEvaluate { project ->
+            tasks.register("runTest") {
+                group = "verification"
+                description = "Run all the tests with testDebugUnitTest"
+            }
+            runTest.finalizedBy("testDebugUnitTest")
         }
-        runTest.finalizedBy("testDebugUnitTest")
     }
     pluginManager.withPlugin("java-library") {
         tasks.register("runTest") {

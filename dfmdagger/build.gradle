@@ -17,12 +17,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin_version}"
 
     api "com.google.android.play:core:${versions.google_play}"
-
-    api "androidx.appcompat:appcompat:${versions.android_core}"
-
-    api "com.google.dagger:dagger:${versions.dagger}"
-    api "com.google.dagger:dagger-android:${versions.dagger}"
-    api "com.google.dagger:dagger-android-support:${versions.dagger}"
 }
 
 apply from: "$rootDir/gradle/aar-publish.gradle"
