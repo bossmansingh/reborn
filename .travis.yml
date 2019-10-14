@@ -12,7 +12,7 @@ install: true
 jobs:
   include:
     - stage: Assemble
-      script: ./gradlew :dfmdagger:dokka
+      script: ./gradlew assemble
     - stage: Analysis
       script: ./gradlew ktlint
     - stage: Unit Tests

@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
+    }
+}
+
 apply from: "$rootDir/gradle/android-library.gradle"
 apply from: "$rootDir/gradle/ktlint.gradle"
 apply from: "$rootDir/gradle/android-tests.gradle"
@@ -21,6 +31,7 @@ dokka {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin_version}"
+    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:${versions.dokka}"
 
     api "com.google.android.play:core:${versions.google_play}"
 }
