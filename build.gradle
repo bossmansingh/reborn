@@ -54,25 +54,6 @@ allprojects {
 subprojects {
     group = project.properties["release.group"]
     version = project.properties["release.version"]
-
-    // We register plugin based on the type of the project
-    // android vs java
-    pluginManager.withPlugin("kotlin-android") {
-        afterEvaluate { project ->
-            tasks.register("runTest") {
-                group = "verification"
-                description = "Run all the tests with testDebugUnitTest"
-            }
-            runTest.finalizedBy("testDebugUnitTest")
-        }
-    }
-    pluginManager.withPlugin("java-library") {
-        tasks.register("runTest") {
-            group = "verification"
-            description = "Run all the tests with test"
-        }
-        runTest.finalizedBy("test")
-    }
 }
 
 task clean(type: Delete) {

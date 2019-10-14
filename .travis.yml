@@ -11,10 +11,12 @@ install: true
 
 jobs:
   include:
+    - stage: Assemble
+      script: ./gradlew assemble
     - stage: Analysis
       script: ./gradlew ktlint
     - stage: Unit Tests
-      script: ./gradlew runTest
+      script: ./gradlew :result:test :repository:test :dfmdagger:testDebugUnitTest
     - stage: GitHub Release
       script: echo "Deploying to GitHub releases..."
       deploy:

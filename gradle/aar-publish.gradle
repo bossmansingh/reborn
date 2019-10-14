@@ -2,10 +2,10 @@
 apply plugin: "org.jetbrains.dokka"
 apply plugin: "com.github.dcendents.android-maven"
 
-dokka {
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
-}
+//dokka {
+//    outputFormat = 'javadoc'
+//    outputDirectory = "$buildDir/javadoc"
+//}
 
 task javadocJar(type: Jar, dependsOn: dokka) {
     group = 'jar'
