@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-apply from: "$rootDir/gradle/shared-dependencies.gradle"
+apply from: "$rootDir/gradle/android-library.gradle"
+apply from: "$rootDir/gradle/ktlint.gradle"
+apply from: "$rootDir/gradle/android-tests.gradle"
 
 android {
     compileSdkVersion versions.sdk_compile
@@ -32,6 +30,9 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin_version}"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin_version}"
+
+    implementation "com.google.android.play:core:${versions.google_play}"
 }
+
+apply from: "$rootDir/gradle/aar-publish.gradle"

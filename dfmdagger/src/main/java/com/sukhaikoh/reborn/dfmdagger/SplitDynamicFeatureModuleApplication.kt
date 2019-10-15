@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-apply from: "$rootDir/gradle/shared-dependencies.gradle"
+package com.sukhaikoh.reborn.dfmdagger
 
-android {
-    compileSdkVersion versions.sdk_compile
+import android.app.Application
+import android.content.Context
+import com.google.android.play.core.splitcompat.SplitCompat
 
-    defaultConfig {
-        minSdkVersion versions.sdk_min
-        targetSdkVersion versions.sdk_target
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+/**
+ * An [Application] that extends [DynamicFeatureModuleApplication] with included [SplitCompat]
+ * installation.
+ */
+abstract class SplitDynamicFeatureModuleApplication : DynamicFeatureModuleApplication() {
+    override fun attachBaseContext(p0: Context?) {
+        super.attachBaseContext(p0)
+        SplitCompat.install(this)
     }
-}
-
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin_version}"
 }

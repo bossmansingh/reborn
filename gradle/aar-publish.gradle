@@ -1,27 +1,5 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
-    }
-}
 
-apply plugin: "org.jetbrains.dokka"
 apply plugin: "com.github.dcendents.android-maven"
-
-dokka {
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
-}
-
-task javadocJar(type: Jar, dependsOn: dokka) {
-    group = 'jar'
-    description = 'Create java doc jar'
-
-    archiveClassifier.set('javadoc')
-    from "$buildDir/javadoc"
-}
 
 task sourcesJar(type: Jar) {
     group = 'jar'
@@ -32,10 +10,5 @@ task sourcesJar(type: Jar) {
 }
 
 artifacts {
-    archives javadocJar
     archives sourcesJar
-}
-
-dependencies {
-    dokkaRuntime "org.jetbrains.dokka:dokka-fatjar:${versions.dokka}"
 }
