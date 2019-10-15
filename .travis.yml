@@ -15,10 +15,8 @@ jobs:
       script: ./gradlew assemble
     - stage: Analysis
       script: ./gradlew ktlint
-    - stage: Print tasks
-      script: ./gradlew :dfmdagger:tasks
     - stage: Unit Tests
-      script: ./gradlew :result:test :repository:test :dfmdagger:test
+      script: ./gradlew :result:test :repository:test
     - stage: GitHub Release
       script: echo "Deploying to GitHub releases..."
       deploy:
