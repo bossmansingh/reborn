@@ -1,6 +1,6 @@
 rootProject.name = 'reborn'
 
-include 'dfmdagger',
+include ':dfmdagger',
         ':testhelper',
         ':repository',
         ':result'
