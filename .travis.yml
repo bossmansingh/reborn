@@ -16,7 +16,7 @@ jobs:
     - stage: Analysis
       script: ./gradlew ktlint
     - stage: Print tasks
-      script: ./gradlew :dfmdagger:test
+      script: ./gradlew :dfmdagger:tasks
     - stage: Unit Tests
       script: ./gradlew :result:test :repository:test :dfmdagger:test
     - stage: GitHub Release
