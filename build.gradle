@@ -24,6 +24,7 @@ buildscript {
         'retrofit'                 : '2.6.0',
         'rxjava'                   : '2.2.6',
         'rxjava_android'           : '2.1.1',
+        'rxjava_kotlin'            : '2.4.0',
         'sdk_compile'              : 28,
         'sdk_min'                  : 23,
         'sdk_target'               : 28,
