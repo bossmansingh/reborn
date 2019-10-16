@@ -15,6 +15,12 @@ dokka {
     outputDirectory = "$buildDir/javadoc"
 }
 
+task install() {
+    group = 'publishing'
+    description = 'Build and publish to maven local'
+}
+install.finalizedBy(build, publishToMavenLocal)
+
 task sourcesJar(type: Jar) {
     archiveClassifier.set("sources")
     from sourceSets.main.allSource
