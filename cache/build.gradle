@@ -1,0 +1,6 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+apply from: "$rootDir/gradle/java-library.gradle"
+apply from: "$rootDir/gradle/jar-publish.gradle"
