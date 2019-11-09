@@ -1,0 +1,21 @@
+apply from: "$rootDir/gradle/android-library.gradle"
+apply from: "$rootDir/gradle/ktlint.gradle"
+apply from: "$rootDir/gradle/android-tests.gradle"
+
+android {
+    compileSdkVersion versions.sdk_compile
+
+    defaultConfig {
+        minSdkVersion versions.sdk_min
+        targetSdkVersion versions.sdk_target
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:${versions.android_core}"
+    implementation "com.google.code.gson:gson:${versions.gson}"
+}
+
+apply from: "$rootDir/gradle/aar-publish.gradle"
