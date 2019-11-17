@@ -19,7 +19,9 @@ package com.sukhaikoh.reborn.repository
 import com.sukhaikoh.reborn.result.Result
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
+import io.reactivex.Scheduler
 import io.reactivex.exceptions.CompositeException
+import io.reactivex.schedulers.Schedulers
 
 class RebornObserable private constructor() {
 
@@ -207,4 +209,19 @@ fun <T> Observable<T>.result(): Observable<Result<T>> {
         .switchIfEmpty { it.onNext(Result.success()) }
         .onErrorReturn { Result.error(it) }
         .map { it }
+}
+
+/**
+ * Wrap the data [T] with [Result] and start the stream with [Result.loading].
+ *
+ * @param T the type of the data that gets loaded.
+ * @param scheduler the [Scheduler] the source [Observable] will subscribe on. This [scheduler]
+ * will not be set if the source [Observable] has already subscribe on to another [Scheduler].
+ * @return a [Observable] that emits [Result.loading], then emits the item from the source
+ * [Observable], transformed by wrapping the item with [Result].
+ */
+fun <T> Observable<T>.execute(scheduler: Scheduler = Schedulers.io()): Observable<Result<T>> {
+    return subscribeOn(scheduler)
+        .result()
+        .startWith(Result.loading())
 }

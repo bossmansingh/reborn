@@ -18,7 +18,9 @@ package com.sukhaikoh.reborn.repository
 
 import com.sukhaikoh.reborn.result.Result
 import io.reactivex.Flowable
+import io.reactivex.Scheduler
 import io.reactivex.exceptions.CompositeException
+import io.reactivex.schedulers.Schedulers
 
 class RebornFlowable private constructor() {
 
@@ -206,4 +208,19 @@ fun <T> Flowable<T>.result(): Flowable<Result<T>> {
         .switchIfEmpty { it.onNext(Result.success()) }
         .onErrorReturn { Result.error(it) }
         .map { it }
+}
+
+/**
+ * Wrap the data [T] with [Result] and start the stream with [Result.loading].
+ *
+ * @param T the type of the data that gets loaded.
+ * @param scheduler the [Scheduler] the source [Flowable] will subscribe on. This [scheduler]
+ * will not be set if the source [Flowable] has already subscribe on to another [Scheduler].
+ * @return a [Flowable] that emits [Result.loading], then emits the item from the source
+ * [Flowable], transformed by wrapping the item with [Result].
+ */
+fun <T> Flowable<T>.execute(scheduler: Scheduler = Schedulers.io()): Flowable<Result<T>> {
+    return subscribeOn(scheduler)
+        .result()
+        .startWith(Result.loading())
 }
