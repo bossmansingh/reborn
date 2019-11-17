@@ -288,4 +288,17 @@ class RebornObservableTest {
             .test()
             .assertValues(Result.success(data2))
     }
+
+    @Test
+    fun `when Observable execute is called then emit Result in correct order`() {
+        val data = "data"
+
+        Observable.just(data)
+            .execute()
+            .test()
+            .assertValues(
+                Result.loading(),
+                Result.success(data)
+            )
+    }
 }
