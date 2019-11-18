@@ -121,4 +121,40 @@ class RebornCompletableTest {
             .test()
             .assertValues(Result.success(data1))
     }
+
+    @Test
+    fun `when Completable result() is called and upstream is completed then emit Result success`() {
+        Completable.complete()
+            .result()
+            .test()
+            .assertValues(Result.success())
+    }
+
+    @Test
+    fun `when Completable result() is called and upstream has error then emit Resource error`() {
+        val error = Throwable()
+
+        Completable.error(error)
+            .result()
+            .test()
+            .assertValues(Result.error(error))
+    }
+
+    @Test
+    fun `when Completable execute() is called and upstream is completed then emit Result success`() {
+        Completable.complete()
+            .execute()
+            .test()
+            .assertValues(Result.success())
+    }
+
+    @Test
+    fun `when Completable execute() is called and upstream has error then emit Resource error`() {
+        val error = Throwable()
+
+        Completable.error(error)
+            .execute()
+            .test()
+            .assertValues(Result.error(error))
+    }
 }

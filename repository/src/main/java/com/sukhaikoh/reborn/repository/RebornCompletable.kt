@@ -19,6 +19,10 @@ package com.sukhaikoh.reborn.repository
 import com.sukhaikoh.reborn.result.Result
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Scheduler
+import io.reactivex.Single
+import io.reactivex.SingleSource
+import io.reactivex.schedulers.Schedulers
 
 class RebornCompletable private constructor()
 
@@ -65,4 +69,36 @@ fun <T> Completable.load(
     return andThen(Flowable.just(Result.success<T>()))
         .onErrorReturn { Result.error(it) }
         .load(skip, mapper)
+}
+
+/**
+ * Returns a [Single] which will subscribe to this [Completable] and once that
+ * is completed then will subscribe to the next [SingleSource] that emits
+ * [Result.success]. An error event from this [Completable] will be propagated
+ * to the downstream subscriber and will result in receiving [Result.error].
+ *
+ * @return Single that composes this Completable and next.
+ */
+fun Completable.result(): Single<Result<Unit>> {
+    return andThen(Single.just(Result.success<Unit>()))
+        .onErrorResumeNext {
+            Single.just(Result.error(it))
+        }
+}
+
+/**
+ * Returns a [Single] which will subscribe to this [Completable] and once that
+ * is completed then will subscribe to the next [SingleSource] that emits
+ * [Result.success]. An error event from this [Completable] will be propagated
+ * to the downstream subscriber and will result in receiving [Result.error].
+ *
+ * This [Completable] will also gets set [Completable.subscribeOn] with the
+ * [scheduler] if it hasn't done so.
+ *
+ * @param scheduler the [Scheduler] that source [Completable] will subscribe on.
+ * @return Single that composes this Completable and next.
+ */
+fun Completable.execute(scheduler: Scheduler = Schedulers.io()): Single<Result<Unit>> {
+    return subscribeOn(scheduler)
+        .result()
 }
