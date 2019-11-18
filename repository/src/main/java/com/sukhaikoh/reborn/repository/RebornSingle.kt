@@ -17,9 +17,11 @@
 package com.sukhaikoh.reborn.repository
 
 import com.sukhaikoh.reborn.result.Result
+import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.SingleObserver
 import io.reactivex.exceptions.CompositeException
+import io.reactivex.schedulers.Schedulers
 
 class RebornSingle private constructor() {
 
@@ -202,4 +204,25 @@ fun <T> Single<T>.result(): Single<Result<T>> {
     return map { Result.success(it) }
         .onErrorReturn { Result.error(it) }
         .map { it }
+}
+
+/**
+ * Wrap the data [T] with [Result] and subscribe on to the [scheduler].
+ *
+ * Returns a [Single] that wraps the item emitted by the source [Single] with
+ * [Result].
+ *
+ * If the source [Single] encounters an error, then a [Single] with
+ * [Result.error] will be returned, otherwise [Result.success] will be
+ * returned with item emitted by the source [Single].
+ *
+ * @param T the type of the data that gets loaded.
+ * @param scheduler the [Scheduler] the source [Single] will subscribe on. This [scheduler]
+ * will not be set if the source [Single] has already subscribed on to another [Scheduler].
+ * @return a [Single] that emits the item from the source Single, transformed
+ * by wrapping the item with [Result].
+ */
+fun <T> Single<T>.execute(scheduler: Scheduler = Schedulers.io()): Single<Result<T>> {
+    return subscribeOn(scheduler)
+        .result()
 }
