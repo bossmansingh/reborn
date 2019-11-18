@@ -270,4 +270,25 @@ class RebornSingleTest {
             .test()
             .assertValues(Result.success(data2))
     }
+
+    @Test
+    fun `when Single execute() is called and upstream has no error then emit Result success`() {
+        val data = "data"
+
+        Single.just(data)
+            .execute()
+            .test()
+            .assertValues(Result.success(data))
+    }
+
+    @Test
+    fun `when Single execute() is called and upstream has error then emit Result error`() {
+        val error = Throwable()
+
+        Single.just(123)
+            .flatMap { Single.error<Int>(error) }
+            .execute()
+            .test()
+            .assertValues(Result.error(error))
+    }
 }

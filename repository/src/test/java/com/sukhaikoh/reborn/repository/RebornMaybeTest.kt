@@ -288,4 +288,25 @@ class RebornMaybeTest {
             .test()
             .assertValues(Result.success(data2))
     }
+
+    @Test
+    fun `when Maybe execute() is called and upstream has no error then emit Result success`() {
+        val data = "data"
+
+        Maybe.just(data)
+            .execute()
+            .test()
+            .assertValues(Result.success(data))
+    }
+
+    @Test
+    fun `when Maybe execute() is called and upstream has error then emit Result error`() {
+        val error = Throwable()
+
+        Maybe.just(123)
+            .flatMap { Maybe.error<Int>(error) }
+            .execute()
+            .test()
+            .assertValues(Result.error(error))
+    }
 }

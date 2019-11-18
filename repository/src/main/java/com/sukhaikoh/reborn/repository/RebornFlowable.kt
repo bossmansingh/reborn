@@ -215,7 +215,7 @@ fun <T> Flowable<T>.result(): Flowable<Result<T>> {
  *
  * @param T the type of the data that gets loaded.
  * @param scheduler the [Scheduler] the source [Flowable] will subscribe on. This [scheduler]
- * will not be set if the source [Flowable] has already subscribe on to another [Scheduler].
+ * will not be set if the source [Flowable] has already subscribed on to another [Scheduler].
  * @return a [Flowable] that emits [Result.loading], then emits the item from the source
  * [Flowable], transformed by wrapping the item with [Result].
  */

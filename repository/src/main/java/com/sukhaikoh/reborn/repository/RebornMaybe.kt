@@ -19,7 +19,9 @@ package com.sukhaikoh.reborn.repository
 import com.sukhaikoh.reborn.result.Result
 import io.reactivex.Maybe
 import io.reactivex.MaybeObserver
+import io.reactivex.Scheduler
 import io.reactivex.exceptions.CompositeException
+import io.reactivex.schedulers.Schedulers
 
 class RebornMaybe private constructor() {
 
@@ -205,4 +207,27 @@ fun <T> Maybe<T>.result(): Maybe<Result<T>> {
         .defaultIfEmpty(Result.success())
         .onErrorReturn { Result.error(it) }
         .map { it }
+}
+
+/**
+ * Wrap the data [T] with [Result] and subscribe on to the [scheduler].
+ *
+ * Returns a [Maybe] that wraps the item emitted by the source [Maybe] with
+ * [Result].
+ *
+ * If the source [Maybe] encounters an error, then a [Maybe] with
+ * [Result.error] will be returned. If the source [Maybe] is empty, then
+ * a [Maybe] with [Result.success] with `null` data will be returned,
+ * otherwise [Result.success] will be returned with item emitted by
+ * the source [Maybe].
+ *
+ * @param T the type of the data that gets loaded.
+ * @param scheduler the [Scheduler] the source [Maybe] will subscribe on. This [scheduler]
+ * will not be set if the source [Maybe] has already subscribed on to another [Scheduler].
+ * @return a [Maybe] that emits the item from the source Maybe, transformed
+ * by wrapping the item with [Result].
+ */
+fun <T> Maybe<T>.execute(scheduler: Scheduler = Schedulers.io()): Maybe<Result<T>> {
+    return subscribeOn(scheduler)
+        .result()
 }
